@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # Hide additional files
-.txt
-.xls
+*.txt
+*.xls
