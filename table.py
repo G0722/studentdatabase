@@ -1,4 +1,5 @@
 from student import *
+import copy
 
 # load the existing saved record
 def load_record():
@@ -37,6 +38,17 @@ def delete_entry(key):
     global student_table
     del student_table[key]
 
+def sort_by_student(attribute, direction):
+    global student_table
+    rev = False if direction == 'ascending' else True
+    to_sort = {}
+    for k in student_table:
+        to_sort[k] = student_table[k].info[attribute]
+    to_sort = sorted(to_sort.items(), key=lambda ts: (ts[1], ts[0]), reverse=rev)
+    sorted_dict = {}
+    for k in to_sort:
+        sorted_dict[k[0]] = student_table[k[0]]
+    return sorted_dict
 
 # Pushes changes to file in memory
 def update_record():

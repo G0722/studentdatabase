@@ -42,6 +42,9 @@ def btn_click(choice, key=None):
     elif choice == 'back':
         clear()
         display_table()
+    elif choice == 'sort':
+        clear()
+        sort_table_form()
 
 def edit_entry_form(key):
     clear()
@@ -60,9 +63,47 @@ def edit_entry_form(key):
     clear()
     display_table()
 
+def sort_table_form():
+    sorted_dict = {}
+    display = []
+    info = input_group("Choose attribute and direction to sort by:",[
+                select(label='Attribute:',
+                       options=[{'label': 'Student ID', 'value':'student_id'},
+                                {'label': 'Last Name', 'value':'last_name'},
+                                {'label': 'First Name', 'value':'first_name'},
+                                {'label': 'Email', 'value':'email'},
+                                {'label': 'Phone Number', 'value':'phone_number'}],
+                       name='attribute', value = 'student_id'),
+                select(label='Direction:',
+                       options=[{'label':'Ascending', 'value':'ascending'},
+                                {'label':'Descending', 'value':'descending'}],
+                       name='direction', value='Ascending')])
+    if info == None:
+        return
+    if info['attribute'] == 'student_id':
+        rev = False if info['direction'] == 'ascending' else True
+        sorted_dict = sorted(student_table.keys(), reverse=rev)
+    else:
+        sorted_dict = table.sort_by_student(info['attribute'],info['direction'])
+    put_markdown("# Student Table (Sorted by: {} in {} order)".format(info['attribute'],info['direction']))
+    put_button(label='Go Back', color='warning', onclick=lambda: btn_click('back'))
+    for s in sorted_dict:
+        row = []
+        row.append(s)
+        student_info = sorted_dict[s].info
+        for k in student_info:
+            if not(k=='age' or k=='gpa' or k=='major'):
+                row.append(student_info[k])
+        row.append(put_buttons([{'label':'View', 'value':'view', 'color':'info'},
+                                {'label':'Edit', 'value':'edit', 'color':'warning'},
+                                {'label':'Delete', 'value':'delete', 'color':'danger'}], onclick=partial(btn_click, key=s)))
+        display.append(row)
+    put_table(display, header=["Student ID", "Last Name", "First Name", "Email", "Phone Number", "Action"])
+
 def display_table():
     put_markdown("# Student Table")
     put_button(label='Add +', color='success', onclick=lambda: btn_click('add'))
+    put_button(label='Sort', onclick=lambda: btn_click('sort'))
     display = []
     for s in table.student_table:
         row = []
