@@ -77,12 +77,14 @@ def sort_table_form():
                 select(label='Direction:',
                        options=[{'label':'Ascending', 'value':'ascending'},
                                 {'label':'Descending', 'value':'descending'}],
-                       name='direction', value='Ascending')])
+                       name='direction', value='Ascending')
+                ], cancelable=True)
     if info == None:
         return
     if info['attribute'] == 'student_id':
         rev = False if info['direction'] == 'ascending' else True
-        sorted_dict = sorted(student_table.keys(), reverse=rev)
+        for k in sorted(table.student_table.keys(), reverse=rev):
+            sorted_dict[k] = table.student_table[k]
     else:
         sorted_dict = table.sort_by_student(info['attribute'],info['direction'])
     put_markdown("# Student Table (Sorted by: {} in {} order)".format(info['attribute'],info['direction']))
@@ -102,8 +104,11 @@ def sort_table_form():
 
 def display_table():
     put_markdown("# Student Table")
-    put_button(label='Add +', color='success', onclick=lambda: btn_click('add'))
-    put_button(label='Sort', onclick=lambda: btn_click('sort'))
+    put_grid([
+        [put_scope('btn-1'), put_scope('btn-2'), put_scope('btn-3'), put_scope('btn-4')]
+    ],cell_widths='25% 25% 25% 25%')
+    put_button(label='Add +', color='success', onclick=lambda: btn_click('add'), scope='btn-1')
+    put_button(label='Sort', onclick=lambda: btn_click('sort'), scope='btn-2')
     display = []
     for s in table.student_table:
         row = []
