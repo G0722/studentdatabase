@@ -80,14 +80,19 @@ def search_table_form():
                 input(label='Keyword:', name='keyword')
     ], cancelable=True)
     if info==None:
+        btn_click('back')
         return
     if info['attribute']=='student_id':
         k = int(info['keyword'])
-        key_attribute[k] = table.student_table[k]
+        if k in key_attribute.keys():
+            key_attribute[k] = table.student_table[k]
     else:
         key_attribute = table.search_by_attribute(info['attribute'], info['keyword'])
     put_markdown('# Student Table (Searching "{}" by {})'.format(info['keyword'],info['attribute']))
     put_button(label='Go Back', color='warning', onclick=lambda: btn_click('back'))
+    if not key_attribute:
+        put_text('Error: Search for "{}" by (category: {}) not found!'.format(info['keyword'],info['attribute']))
+        return
     for k in key_attribute:
         row = []
         row.append(k)
@@ -118,6 +123,7 @@ def sort_table_form():
                        name='direction', value='Ascending')
                 ], cancelable=True)
     if info == None:
+        btn_click('back')
         return
     if info['attribute'] == 'student_id':
         rev = False if info['direction'] == 'ascending' else True
@@ -127,6 +133,7 @@ def sort_table_form():
         sorted_dict = table.sort_by_student(info['attribute'],info['direction'])
     put_markdown("# Student Table (Sorted by: {} in {} order)".format(info['attribute'],info['direction']))
     put_button(label='Go Back', color='warning', onclick=lambda: btn_click('back'))
+
     for s in sorted_dict:
         row = []
         row.append(s)
