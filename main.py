@@ -26,13 +26,20 @@ def add_entry_page():
     clear()
     display_table()
 
-
+def handle_delete(choice, k):
+    if choice == 'confirm':
+        table.delete_entry(k)
+        table.update_record()
+    close_popup()
+    clear()
+    display_table()
+    return
 def btn_click(choice, key=None):
     if choice == 'delete':
-        table.delete_entry(key)
-        table.update_record()
-        clear()
-        display_table()
+        with popup('Confirm Delete') as warning_window:
+            put_text('Are you sure you want to delete this entry (ID: {})'.format(key))
+            put_buttons([{'label':'Delete', 'value':'confirm', 'color':'danger'},
+                         {'label':'Cancel','value':'cancel', 'color':'light'}], onclick=partial(handle_delete, k=key))
     elif choice == 'edit':
         edit_entry_form(key)
     elif choice == 'add':
