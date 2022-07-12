@@ -23,7 +23,7 @@ def load_record():
 
 # global variables
 student_table = load_record()
-highest_id = max(student_table.keys())
+highest_id = max(student_table.keys()) if student_table else 0
 
 # Allows creation of new entry in table with unique primary key
 def add_new_entry(info):

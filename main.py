@@ -37,7 +37,8 @@ def handle_delete(choice, k):
 def btn_click(choice, key=None):
     if choice == 'delete':
         with popup('Confirm Delete') as warning_window:
-            put_text('Are you sure you want to delete this entry (ID: {})'.format(key))
+            student = table.student_table[key].info
+            put_text('Are you sure you want to delete this entry\nfor {} {} (ID: {})'.format(student['first_name'], student['last_name'], key))
             put_buttons([{'label':'Delete', 'value':'confirm', 'color':'danger'},
                          {'label':'Cancel','value':'cancel', 'color':'light'}], onclick=partial(handle_delete, k=key))
     elif choice == 'edit':
@@ -162,6 +163,9 @@ def display_table():
     put_button(label='Add +', color='success', onclick=lambda: btn_click('add'), scope='btn-1')
     put_button(label='Sort', onclick=lambda: btn_click('sort'), scope='btn-2')
     put_button(label='Search', color='info', onclick=lambda: btn_click('search'), scope='btn-3')
+    if not table.student_table:
+        put_text("Student table is currently empty.")
+        return
     display = []
     for s in table.student_table:
         row = []
