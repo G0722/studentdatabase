@@ -45,23 +45,61 @@ def btn_click(choice, key=None):
     elif choice == 'sort':
         clear()
         sort_table_form()
+    elif choice == 'search':
+        clear()
+        search_table_form()
 
 def edit_entry_form(key):
     clear()
     student = table.student_table[key]
-    info = input_group('Edit Student Info for {} {} (ID: {})'.format(student.info['first_name'],student.info['last_name'],key), [
-                input(label='Last Name', value=student.info['last_name'], name='last_name'),
-                input(label='First Name', value=student.info['first_name'], name='first_name'),
-                input(label='Email', value=student.info['email'], name='email'),
-                input(label='Phone Number', value=student.info['phone_number'], name='phone_number'),
-                input(label='Age', value=student.info['age'], type=NUMBER, name='age'),
-                input(label='Major', value=student.info['major'], name='major'),
-                input(label='GPA', value=student.info['gpa'], name='gpa'),
-                ], cancelable = True)
+    info = input_group('Edit Student Info for {} {} (ID: {})'.format(student.info['first_name'],student.info['last_name'],key),
+    [
+        input(label='Last Name', value=student.info['last_name'], name='last_name'),
+        input(label='First Name', value=student.info['first_name'], name='first_name'),
+        input(label='Email', value=student.info['email'], name='email'),
+        input(label='Phone Number', value=student.info['phone_number'], name='phone_number'),
+        input(label='Age', value=student.info['age'], type=NUMBER, name='age'),
+        input(label='Major', value=student.info['major'], name='major'),
+        input(label='GPA', value=student.info['gpa'], name='gpa'),
+    ], cancelable = True)
+
     student.edit(info)
     table.update_record()
     clear()
     display_table()
+
+def search_table_form():
+    key_attribute = {}
+    display = []
+    info = input_group("Choose attribute and enter keywords to search:",[
+                select(label='Attribute:',
+                       options=[{'label': 'Student ID', 'value':'student_id'},
+                                {'label': 'Last Name', 'value':'last_name'},
+                                {'label': 'First Name', 'value':'first_name'}],
+                name='attribute', value='student_id'),
+                input(label='Keyword:', name='keyword')
+    ], cancelable=True)
+    if info==None:
+        return
+    if info['attribute']=='student_id':
+        k = int(info['keyword'])
+        key_attribute[k] = table.student_table[k]
+    else:
+        key_attribute = table.search_by_attribute(info['attribute'], info['keyword'])
+    put_markdown('# Student Table (Searching "{}" by {})'.format(info['keyword'],info['attribute']))
+    put_button(label='Go Back', color='warning', onclick=lambda: btn_click('back'))
+    for k in key_attribute:
+        row = []
+        row.append(k)
+        student_info = key_attribute[k].info
+        for e in student_info:
+            if not(e=='age' or e=='gpa' or e=='major'):
+                row.append(student_info[e])
+        row.append(put_buttons([{'label':'View', 'value':'view', 'color':'info'},
+                                {'label':'Edit', 'value':'edit', 'color':'warning'},
+                                {'label':'Delete', 'value':'delete', 'color':'danger'}], onclick=partial(btn_click, key=k)))
+        display.append(row)
+    put_table(display, header=["Student ID", "Last Name", "First Name", "Email", "Phone Number", "Action"])
 
 def sort_table_form():
     sorted_dict = {}
@@ -109,6 +147,7 @@ def display_table():
     ],cell_widths='25% 25% 25% 25%')
     put_button(label='Add +', color='success', onclick=lambda: btn_click('add'), scope='btn-1')
     put_button(label='Sort', onclick=lambda: btn_click('sort'), scope='btn-2')
+    put_button(label='Search', color='info', onclick=lambda: btn_click('search'), scope='btn-3')
     display = []
     for s in table.student_table:
         row = []

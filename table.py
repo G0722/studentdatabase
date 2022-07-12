@@ -50,6 +50,16 @@ def sort_by_student(attribute, direction):
         sorted_dict[k[0]] = student_table[k[0]]
     return sorted_dict
 
+def search_by_attribute(attribute, keyword):
+    global student_table
+    to_find = {}
+    for k in student_table:
+        to_find[k] = student_table[k].info[attribute]
+    found_items = {}
+    for k in to_find:
+        if to_find[k] == keyword:
+            found_items[k] = student_table[k]
+    return found_items
 # Pushes changes to file in memory
 def update_record():
     global student_table
