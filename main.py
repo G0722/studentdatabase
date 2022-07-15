@@ -26,6 +26,7 @@ def add_entry_page():
     clear()
     display_table()
 
+# handles the button clicking in the delete popup confirmation window
 def handle_delete(choice, k):
     if choice == 'confirm':
         table.delete_entry(k)
@@ -34,6 +35,8 @@ def handle_delete(choice, k):
     clear()
     display_table()
     return
+
+# handles the event of clicking a button
 def btn_click(choice, key=None):
     if choice == 'delete':
         with popup('Confirm Delete') as warning_window:
@@ -57,6 +60,7 @@ def btn_click(choice, key=None):
         clear()
         search_table_form()
 
+# displays the form used to edit based on key provided
 def edit_entry_form(key):
     clear()
     student = table.student_table[key]
@@ -76,6 +80,7 @@ def edit_entry_form(key):
     clear()
     display_table()
 
+# handles the searching
 def search_table_form():
     key_attribute = {}
     display = []
@@ -87,21 +92,25 @@ def search_table_form():
                 name='attribute', value='student_id'),
                 input(label='Keyword:', name='keyword')
     ], cancelable=True)
+    # if we cancel, we want to go back to the main page
     if info==None:
         btn_click('back')
         return
+
+    # if we choose student_id, we can just do a simple dict access using the key
     if info['attribute']=='student_id':
         k = int(info['keyword'])
-        if k in key_attribute.keys():
+        if k in key_attribute.keys():   # make sure key is actually in the dict
             key_attribute[k] = table.student_table[k]
     else:
         key_attribute = table.search_by_attribute(info['attribute'], info['keyword'])
     put_markdown('# Student Table (Searching "{}" by {})'.format(info['keyword'],info['attribute']))
     put_button(label='Go Back', color='warning', onclick=lambda: btn_click('back'))
-    if not key_attribute:
+
+    if not key_attribute:       # if search yields nothing
         put_text('Error: Search for "{}" by (category: {}) not found!'.format(info['keyword'],info['attribute']))
         return
-    for k in key_attribute:
+    for k in key_attribute:     # otherwise display search results as table
         row = []
         row.append(k)
         student_info = key_attribute[k].info
@@ -114,6 +123,7 @@ def search_table_form():
         display.append(row)
     put_table(display, header=["Student ID", "Last Name", "First Name", "Email", "Phone Number", "Action"])
 
+# handles the sorting operation of table by attribute
 def sort_table_form():
     sorted_dict = {}
     display = []
@@ -130,9 +140,11 @@ def sort_table_form():
                                 {'label':'Descending', 'value':'descending'}],
                        name='direction', value='Ascending')
                 ], cancelable=True)
+    # Go back to main page if we cancel the form
     if info == None:
         btn_click('back')
         return
+    # If sort by student id, we can easily sort the dict key
     if info['attribute'] == 'student_id':
         rev = False if info['direction'] == 'ascending' else True
         for k in sorted(table.student_table.keys(), reverse=rev):
@@ -142,6 +154,7 @@ def sort_table_form():
     put_markdown("# Student Table (Sorted by: {} in {} order)".format(info['attribute'],info['direction']))
     put_button(label='Go Back', color='warning', onclick=lambda: btn_click('back'))
 
+    # print the table in the sorted order
     for s in sorted_dict:
         row = []
         row.append(s)
@@ -155,6 +168,7 @@ def sort_table_form():
         display.append(row)
     put_table(display, header=["Student ID", "Last Name", "First Name", "Email", "Phone Number", "Action"])
 
+# main page that displays the entire table. it is initially sorted by student id.
 def display_table():
     put_markdown("# Student Table")
     put_grid([
@@ -174,12 +188,14 @@ def display_table():
         for k in student_info:
             if not(k=='age' or k=='gpa' or k=='major'):
                 row.append(student_info[k])
+        # add action buttons for each row
         row.append(put_buttons([{'label':'View', 'value':'view', 'color':'info'},
                                 {'label':'Edit', 'value':'edit', 'color':'warning'},
                                 {'label':'Delete', 'value':'delete', 'color':'danger'}], onclick=partial(btn_click, key=s)))
         display.append(row)
     put_table(display, header=["Student ID", "Last Name", "First Name", "Email", "Phone Number", "Action"])
 
+# handles the view/print page for a specific student
 def view_student_info(id):
     clear()
     student = table.student_table[id].info
